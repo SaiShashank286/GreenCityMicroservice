@@ -1,0 +1,34 @@
+package com.example.microservice_notify.controller;
+
+import com.example.microservice_notify.entity.Notification;
+import com.example.microservice_notify.service.NotificationService;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+
+@RestController
+@RequestMapping("/api/notifications")
+public class NotificationController {
+
+    private final NotificationService notificationService;
+
+    public NotificationController(NotificationService notificationService) {
+        this.notificationService = notificationService;
+    }
+
+    // Endpoint to create notification directly
+    @PostMapping("/create")
+    public Notification createNotification(@RequestParam Integer userId,
+                                           @RequestParam Integer projectId,
+                                           @RequestParam Integer milestoneId,
+                                           @RequestParam String entityType,
+                                           @RequestParam String category) {
+        return notificationService.createNotification(userId, projectId,milestoneId, entityType, category);
+    }
+
+    // Endpoint to fetch notifications for a user
+    @GetMapping("/user/{userId}")
+    public List<Notification> getNotificationsByUser(@PathVariable Integer userId) {
+        return notificationService.getNotificationsByUser(userId);
+    }
+}
