@@ -1,0 +1,11 @@
+package com.cognizant.greencity.ProjectService.repository;
+
+import com.cognizant.greencity.ProjectService.entity.Milestone;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+import java.util.List;
+
+public interface MilestoneRepository extends JpaRepository<Milestone, Long> {
+
+	List<Milestone> findByProject_ProjectId(Long projectId);
+}

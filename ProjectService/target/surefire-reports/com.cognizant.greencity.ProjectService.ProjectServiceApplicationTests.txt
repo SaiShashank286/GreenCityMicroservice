@@ -1,0 +1,4 @@
+-------------------------------------------------------------------------------
+Test set: com.cognizant.greencity.ProjectService.ProjectServiceApplicationTests
+-------------------------------------------------------------------------------
+Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 20.21 s -- in com.cognizant.greencity.ProjectService.ProjectServiceApplicationTests

@@ -1,0 +1,4 @@
+-------------------------------------------------------------------------------
+Test set: com.cognizant.greencity.authentication_service.AuthenticationServiceApplicationTests
+-------------------------------------------------------------------------------
+Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 19.19 s -- in com.cognizant.greencity.authentication_service.AuthenticationServiceApplicationTests
