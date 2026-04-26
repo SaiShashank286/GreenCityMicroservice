@@ -1,6 +1,7 @@
 package com.cognizant.citizenservice.dto.feedback;
 
 import com.cognizant.citizenservice.entity.Feedback;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -15,6 +16,7 @@ public class FeedbackUpdateRequest {
     @Size(max = 255)
     private String comments;
 
+    @NotBlank
     @Size(max = 255)
     private String status;
 }

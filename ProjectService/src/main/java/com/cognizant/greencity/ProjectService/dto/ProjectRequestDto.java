@@ -25,6 +25,7 @@ public class ProjectRequestDto {
 	@NotNull
 	private LocalDate startDate;
 
+	@NotNull
 	private LocalDate endDate;
 
 	private BigDecimal budget;

@@ -3,6 +3,7 @@ package com.cognizant.greencity.authentication_service.exception;
 import jakarta.validation.ConstraintViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.validation.BindException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -87,6 +88,15 @@ public class GlobalExceptionHandler {
         body.put("status", status.value());
         body.put("error", message);
         return ResponseEntity.status(status).body(body);
+    }
+    @ExceptionHandler(BadCredentialsException.class)
+    public ResponseEntity<Object> handleBadCredentials(BadCredentialsException ex) {
+        Map<String, Object> body = new HashMap<>();
+        body.put("timestamp", Instant.now());
+        body.put("status", 401);
+        body.put("error", "Unauthorized");
+        body.put("message", "Invalid email or password");
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(body);
     }
 }
 
