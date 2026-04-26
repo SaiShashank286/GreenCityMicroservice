@@ -4,14 +4,17 @@ import com.cognizant.citizenservice.dto.report.CitizenReportCreateRequest;
 import com.cognizant.citizenservice.dto.report.CitizenReportResponse;
 import com.cognizant.citizenservice.dto.report.CitizenReportUpdateRequest;
 import com.cognizant.citizenservice.dto.user.UserDTO;
+import com.cognizant.citizenservice.dto.notification.NotificationCreateRequest;
 import com.cognizant.citizenservice.entity.CitizenReport;
 
 import com.cognizant.citizenservice.exception.NotFoundException;
 import com.cognizant.citizenservice.exception.UnauthorizedException;
+import com.cognizant.citizenservice.feignclient.NotificationClient;
 import com.cognizant.citizenservice.feignclient.UserClient;
 import com.cognizant.citizenservice.repository.CitizenReportRepository;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
@@ -20,11 +23,13 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
+@Slf4j
 @RequiredArgsConstructor
 public class CitizenReportService {
 
     private final CitizenReportRepository citizenReportRepository;
     private final UserClient userClient;
+    private final NotificationClient notificationClient;
     private final ModelMapper modelMapper;
 
     public List<CitizenReportResponse> listMine(Authentication authentication) {
@@ -54,6 +59,7 @@ public class CitizenReportService {
         report.setDate(LocalDateTime.now());
 
         CitizenReport saved = citizenReportRepository.save(report);
+        sendNotification(userId, saved.getReportId(), "REPORT", "REPORT");
 
         return toResponse(saved);
     }
@@ -97,6 +103,20 @@ public class CitizenReportService {
 
         if (report.getCitizen() == null  || !userId.equals(report.getCitizen())) {
             throw new UnauthorizedException("Not allowed");
+        }
+    }
+
+    private void sendNotification(Integer userId, Integer entityId, String entityType, String category) {
+        try {
+            notificationClient.createNotification(NotificationCreateRequest.builder()
+                    .userId(userId)
+                    .projectId(null)
+                    .entityId(entityId)
+                    .entityType(entityType)
+                    .category(category)
+                    .build());
+        } catch (Exception ex) {
+            log.warn("Notification call failed for {} {}", entityType, entityId, ex);
         }
     }
 }
