@@ -3,23 +3,30 @@ package com.cognizant.complianceservice.service;
 import com.cognizant.complianceservice.dto.compliance.ComplianceRecordCreateRequest;
 import com.cognizant.complianceservice.dto.compliance.ComplianceRecordResponse;
 import com.cognizant.complianceservice.dto.compliance.ComplianceRecordUpdateRequest;
+import com.cognizant.complianceservice.dto.notification.NotificationCreateRequest;
 import com.cognizant.complianceservice.entity.Audit;
 import com.cognizant.complianceservice.entity.ComplianceRecord;
 import com.cognizant.complianceservice.exception.BadRequestException;
 import com.cognizant.complianceservice.exception.NotFoundException;
+import com.cognizant.complianceservice.feignClient.NotificationClient;
 import com.cognizant.complianceservice.feignClient.ProjectClient;
 import com.cognizant.complianceservice.feignClient.ResourceClient;
+import com.cognizant.complianceservice.feignClient.UserClient;
 import com.cognizant.complianceservice.repository.AuditRepository;
 import com.cognizant.complianceservice.repository.ComplianceRecordRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 import org.modelmapper.ModelMapper;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
+@Slf4j
 @RequiredArgsConstructor
 public class ComplianceRecordService {
 
@@ -28,6 +35,8 @@ public class ComplianceRecordService {
     private final ModelMapper modelMapper;
     private final ProjectClient projectClient;
     private final ResourceClient resourceClient;
+    private final UserClient userClient;
+    private final NotificationClient notificationClient;
 
 
 
@@ -55,6 +64,8 @@ public class ComplianceRecordService {
         }
 
         ComplianceRecord saved = complianceRecordRepository.save(record);
+        Integer userId = resolveAuthenticatedUserId();
+        sendNotification(userId, saved.getComplianceId(), "COMPLIANCE_RECORD", "COMPLIANCE");
 
         return toResponse(saved);
     }
@@ -105,6 +116,31 @@ public class ComplianceRecordService {
 
         if (!exists) {
             throw new NotFoundException(type + " with ID " + id + " does not exist.");
+        }
+    }
+
+    private Integer resolveAuthenticatedUserId() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null || authentication.getName() == null) {
+            return null;
+        }
+        return userClient.getuserId(authentication.getName()).getUserId();
+    }
+
+    private void sendNotification(Integer userId, Integer entityId, String entityType, String category) {
+        if (userId == null) {
+            return;
+        }
+        try {
+            notificationClient.createNotification(NotificationCreateRequest.builder()
+                    .userId(userId)
+                    .projectId(null)
+                    .entityId(entityId)
+                    .entityType(entityType)
+                    .category(category)
+                    .build());
+        } catch (Exception ex) {
+            log.warn("Notification call failed for {} {}", entityType, entityId, ex);
         }
     }
 

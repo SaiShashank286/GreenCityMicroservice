@@ -6,14 +6,17 @@ import com.cognizant.greencity.ProjectService.dto.ResourceUpdateRequestDto;
 import com.cognizant.greencity.ProjectService.dto.ResourceUsageCreateRequestDto;
 import com.cognizant.greencity.ProjectService.dto.ResourceUsageResponseDto;
 import com.cognizant.greencity.ProjectService.dto.ResourceUsageUpdateRequestDto;
+import com.cognizant.greencity.ProjectService.dto.NotificationCreateRequestDto;
 import com.cognizant.greencity.ProjectService.entity.Project;
 import com.cognizant.greencity.ProjectService.entity.Resource;
 import com.cognizant.greencity.ProjectService.entity.ResourceUsage;
 import com.cognizant.greencity.ProjectService.exception.NotFoundException;
+import com.cognizant.greencity.ProjectService.feignclient.NotificationClient;
 import com.cognizant.greencity.ProjectService.repository.ProjectRepository;
 import com.cognizant.greencity.ProjectService.repository.ResourceRepository;
 import com.cognizant.greencity.ProjectService.repository.ResourceUsageRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,6 +24,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
+@Slf4j
 @RequiredArgsConstructor
 @Transactional
 public class ResourceService {
@@ -28,6 +32,7 @@ public class ResourceService {
 	private final ResourceRepository resourceRepository;
 	private final ResourceUsageRepository resourceUsageRepository;
 	private final ProjectRepository projectRepository;
+	private final NotificationClient notificationClient;
 
 	@Transactional(readOnly = true)
 	public List<ResourceResponseDto> listResources(Long projectId) {
@@ -56,7 +61,9 @@ public class ResourceService {
 				.capacity(request.getCapacity())
 				.status(request.getStatus())
 				.build();
-		return toResourceResponse(resourceRepository.save(resource));
+		Resource saved = resourceRepository.save(resource);
+		sendNotification(project.getCreatedBy(), project.getProjectId(), saved.getResourceId(), "RESOURCE", "PROJECT");
+		return toResourceResponse(saved);
 	}
 
 	public ResourceResponseDto updateResource(Long resourceId, ResourceUpdateRequestDto request) {
@@ -105,7 +112,32 @@ public class ResourceService {
 				.status(request.getStatus())
 				.date(LocalDateTime.now())
 				.build();
-		return toUsageResponse(resourceUsageRepository.save(usage));
+		ResourceUsage saved = resourceUsageRepository.save(usage);
+		sendNotification(
+				resource.getProject().getCreatedBy(),
+				resource.getProject().getProjectId(),
+				saved.getUsageId(),
+				"RESOURCE_USAGE",
+				"RESOURCE"
+		);
+		return toUsageResponse(saved);
+	}
+
+	private void sendNotification(Integer userId, Long projectId, Long entityId, String entityType, String category) {
+		if (userId == null || entityId == null) {
+			return;
+		}
+		try {
+			notificationClient.createNotification(NotificationCreateRequestDto.builder()
+					.userId(userId)
+					.projectId(projectId != null ? projectId.intValue() : null)
+					.entityId(entityId.intValue())
+					.entityType(entityType)
+					.category(category)
+					.build());
+		} catch (Exception ex) {
+			log.warn("Notification call failed for {} {}", entityType, entityId, ex);
+		}
 	}
 
 	public ResourceUsageResponseDto updateUsage(Long usageId, ResourceUsageUpdateRequestDto request) {

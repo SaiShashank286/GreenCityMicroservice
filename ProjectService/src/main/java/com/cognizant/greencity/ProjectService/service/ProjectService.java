@@ -4,6 +4,7 @@ import com.cognizant.greencity.ProjectService.dto.ImpactRequestDto;
 import com.cognizant.greencity.ProjectService.dto.ImpactResponseDto;
 import com.cognizant.greencity.ProjectService.dto.MilestoneRequestDto;
 import com.cognizant.greencity.ProjectService.dto.MilestoneResponseDto;
+import com.cognizant.greencity.ProjectService.dto.NotificationCreateRequestDto;
 import com.cognizant.greencity.ProjectService.dto.ProjectRequestDto;
 import com.cognizant.greencity.ProjectService.dto.ProjectResponseDto;
 import com.cognizant.greencity.ProjectService.dto.UserDetailsDto;
@@ -12,6 +13,7 @@ import com.cognizant.greencity.ProjectService.entity.Milestone;
 import com.cognizant.greencity.ProjectService.entity.Project;
 import com.cognizant.greencity.ProjectService.exception.BadRequestException;
 import com.cognizant.greencity.ProjectService.exception.NotFoundException;
+import com.cognizant.greencity.ProjectService.feignclient.NotificationClient;
 import com.cognizant.greencity.ProjectService.feignclient.UserClient;
 import com.cognizant.greencity.ProjectService.repository.ImpactRepository;
 import com.cognizant.greencity.ProjectService.repository.MilestoneRepository;
@@ -35,6 +37,7 @@ public class ProjectService {
 	private final MilestoneRepository milestoneRepository;
 	private final ImpactRepository impactRepository;
 	private final UserClient userClient;
+	private final NotificationClient notificationClient;
 
 	@Transactional(readOnly = true)
 	public List<ProjectResponseDto> getAllProjects() {
@@ -62,7 +65,9 @@ public class ProjectService {
 				.budget(request.getBudget())
 				.status(request.getStatus())
 				.build();
-		return toProjectResponse(projectRepository.save(project));
+		Project saved = projectRepository.save(project);
+		sendNotification(user.getUserId(), saved.getProjectId(), saved.getProjectId(), "PROJECT", "PROJECT");
+		return toProjectResponse(saved);
 	}
 
 	public ProjectResponseDto updateProject(Long projectId, ProjectRequestDto request) {
@@ -96,7 +101,9 @@ public class ProjectService {
 				.milestoneDate(request.getMilestoneDate())
 				.status(request.getStatus())
 				.build();
-		return toMilestoneResponse(milestoneRepository.save(milestone));
+		Milestone saved = milestoneRepository.save(milestone);
+		sendNotification(project.getCreatedBy(), project.getProjectId(), saved.getMilestoneId(), "MILESTONE", "PROJECT");
+		return toMilestoneResponse(saved);
 	}
 
 	@Transactional(readOnly = true)
@@ -115,7 +122,26 @@ public class ProjectService {
 				.recordedDate(request.getRecordedDate())
 				.status(request.getStatus())
 				.build();
-		return toImpactResponse(impactRepository.save(impact));
+		Impact saved = impactRepository.save(impact);
+		sendNotification(project.getCreatedBy(), project.getProjectId(), saved.getImpactId(), "IMPACT", "PROJECT");
+		return toImpactResponse(saved);
+	}
+
+	private void sendNotification(Integer userId, Long projectId, Long entityId, String entityType, String category) {
+		if (userId == null || entityId == null) {
+			return;
+		}
+		try {
+			notificationClient.createNotification(NotificationCreateRequestDto.builder()
+					.userId(userId)
+					.projectId(projectId != null ? projectId.intValue() : null)
+					.entityId(entityId.intValue())
+					.entityType(entityType)
+					.category(category)
+					.build());
+		} catch (Exception ex) {
+			log.warn("Notification call failed for {} {}", entityType, entityId, ex);
+		}
 	}
 
 	@Transactional(readOnly = true)

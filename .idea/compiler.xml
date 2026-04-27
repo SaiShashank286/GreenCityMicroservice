@@ -8,17 +8,6 @@
         <outputRelativeToContentRoot value="true" />
         <module name="config-server" />
       </profile>
-      <profile name="Annotation profile for authentication-service" enabled="true">
-        <sourceOutputDir name="target/generated-sources/annotations" />
-        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
-        <outputRelativeToContentRoot value="true" />
-        <processorPath useClasspath="false">
-          <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/1.18.44/lombok-1.18.44.jar" />
-          <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/1.18.44/lombok-1.18.44.jar" />
-        </processorPath>
-        <module name="ProjectService" />
-        <module name="authentication-service" />
-      </profile>
       <profile name="Annotation profile for user-service" enabled="true">
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
@@ -26,10 +15,12 @@
         <processorPath useClasspath="false">
           <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/1.18.44/lombok-1.18.44.jar" />
         </processorPath>
-        <module name="api-gateway" />
-        <module name="user-service" />
+        <module name="authentication-service" />
         <module name="greencity" />
         <module name="complianceservice" />
+        <module name="api-gateway" />
+        <module name="ProjectService" />
+        <module name="user-service" />
         <module name="service-registry" />
         <module name="citizenservice" />
       </profile>
