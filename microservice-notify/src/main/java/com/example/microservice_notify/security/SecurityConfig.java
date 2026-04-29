@@ -1,7 +1,7 @@
 package com.example.microservice_notify.security;
 
 import com.example.microservice_notify.exception.CustomAccessDeniedHandler;
-import com.example.microservice_notify.exception.CustomAuthenticationEntryPoint;
+
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -19,12 +19,11 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 public class SecurityConfig {
 
     private final CustomAccessDeniedHandler accessDeniedHandler;
-    private final CustomAuthenticationEntryPoint authenticationEntryPoint;
 
-    public SecurityConfig(CustomAccessDeniedHandler accessDeniedHandler,
-                          CustomAuthenticationEntryPoint authenticationEntryPoint) {
+
+    public SecurityConfig(CustomAccessDeniedHandler accessDeniedHandler) {
         this.accessDeniedHandler = accessDeniedHandler;
-        this.authenticationEntryPoint = authenticationEntryPoint;
+
     }
 
     @Bean
@@ -44,7 +43,7 @@ public class SecurityConfig {
                 )
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
                 .exceptionHandling(exception -> exception
-                        .authenticationEntryPoint(authenticationEntryPoint)
+
                         .accessDeniedHandler(accessDeniedHandler)
                 )
                 .build();
