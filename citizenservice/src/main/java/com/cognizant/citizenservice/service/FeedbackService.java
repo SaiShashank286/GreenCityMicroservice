@@ -38,6 +38,12 @@ public class FeedbackService {
                 .map(this::toResponse).toList();
     }
 
+    public List<FeedbackResponse> listAll() {
+        return feedbackRepository.findAll().stream()
+                .map(this::toResponse)
+                .toList();
+    }
+
     public FeedbackResponse getMine(Integer id, Authentication authentication) {
         Feedback feedback = getEntity(id);
         enforceOwner(feedback, authentication);

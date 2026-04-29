@@ -31,6 +31,14 @@ public class CitizenReportController {
         return response;
     }
 
+    @GetMapping("/all")
+    public List<CitizenReportResponse> listAll() {
+        logger.info("Received request to list all citizen reports");
+        List<CitizenReportResponse> response = citizenReportService.listAll();
+        logger.info("Successfully fetched all citizen reports");
+        return response;
+    }
+
     @GetMapping("/{id}")
     public CitizenReportResponse getMine(@PathVariable Integer id, Authentication authentication) {
         logger.info("Received request to get citizen report id: {}", id);

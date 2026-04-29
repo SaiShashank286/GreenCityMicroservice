@@ -31,6 +31,14 @@ public class FeedbackController {
         return response;
     }
 
+    @GetMapping("/all")
+    public List<FeedbackResponse> listAll() {
+        logger.info("Received request to list all feedback");
+        List<FeedbackResponse> response = feedbackService.listAll();
+        logger.info("Successfully fetched all feedback");
+        return response;
+    }
+
     @GetMapping("/{id}")
     public FeedbackResponse getMine(@PathVariable Integer id, Authentication authentication) {
         logger.info("Received request to get feedback id: {}", id);

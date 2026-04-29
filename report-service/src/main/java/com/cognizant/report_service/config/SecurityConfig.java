@@ -1,5 +1,8 @@
-package com.cognizant.citizenservice.config;
-import com.cognizant.citizenservice.filter.JwtFilter;
+package com.cognizant.report_service.config;
+
+import com.cognizant.report_service.exception.CustomAccessDeniedHandler;
+import com.cognizant.report_service.exception.CustomAuthenticationEntryPoint;
+import com.cognizant.report_service.filter.JwtFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -13,6 +16,15 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
+    private final CustomAccessDeniedHandler accessDeniedHandler;
+    private final CustomAuthenticationEntryPoint authenticationEntryPoint;
+
+    public SecurityConfig(CustomAccessDeniedHandler accessDeniedHandler,
+                          CustomAuthenticationEntryPoint authenticationEntryPoint) {
+        this.accessDeniedHandler = accessDeniedHandler;
+        this.authenticationEntryPoint = authenticationEntryPoint;
+    }
+
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http, JwtFilter jwtFilter) throws Exception {
 
@@ -22,14 +34,14 @@ public class SecurityConfig {
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
                 .authorizeHttpRequests(auth -> auth
-                        // Register allowed internally
-                        .requestMatchers("/api/citizen/all").hasAnyRole("CITIZEN", "ADMIN")
-                        .requestMatchers("/api/feedback/all").hasAnyRole("CITIZEN", "ADMIN")
-                        .requestMatchers("/api/citizen/**").hasRole("CITIZEN")
-                        .requestMatchers("/api/feedback/**").hasRole("CITIZEN")
+                        .requestMatchers("/api/reports/**").hasRole("ADMIN")
                         .anyRequest().authenticated()
-                ).addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
-
+                )
+                .exceptionHandling(exception -> exception
+                        .authenticationEntryPoint(authenticationEntryPoint)
+                        .accessDeniedHandler(accessDeniedHandler)
+                )
+                .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }

@@ -40,6 +40,12 @@ public class CitizenReportService {
                 .map(this::toResponse).toList();
     }
 
+    public List<CitizenReportResponse> listAll() {
+        return citizenReportRepository.findAll().stream()
+                .map(this::toResponse)
+                .toList();
+    }
+
     public CitizenReportResponse getMine(Integer id, Authentication authentication) {
         CitizenReport report = getEntity(id);
         enforceOwner(report, authentication);
