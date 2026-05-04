@@ -13,6 +13,7 @@
         <option value="$PROJECT_DIR$/microservice-notify/pom.xml" />
         <option value="$PROJECT_DIR$/authentication-service/pom.xml" />
         <option value="$PROJECT_DIR$/config-server/config-server/pom.xml" />
+        <option value="$PROJECT_DIR$/report-service/pom.xml" />
       </list>
     </option>
   </component>

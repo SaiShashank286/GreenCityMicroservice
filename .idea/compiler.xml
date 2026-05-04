@@ -8,7 +8,7 @@
         <outputRelativeToContentRoot value="true" />
         <module name="config-server" />
       </profile>
-      <profile name="Annotation profile for api-gateway" enabled="true">
+      <profile name="Annotation profile for user-service" enabled="true">
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
@@ -21,8 +21,17 @@
         <module name="api-gateway" />
         <module name="ProjectService" />
         <module name="user-service" />
-        <module name="citizenservice" />
         <module name="service-registry" />
+        <module name="citizenservice" />
+      </profile>
+      <profile name="Annotation profile for report-service" enabled="true">
+        <sourceOutputDir name="target/generated-sources/annotations" />
+        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
+        <outputRelativeToContentRoot value="true" />
+        <processorPath useClasspath="false">
+          <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/1.18.46/lombok-1.18.46.jar" />
+        </processorPath>
+        <module name="report-service" />
       </profile>
     </annotationProcessing>
   </component>
@@ -35,6 +44,7 @@
       <module name="complianceservice" options="-parameters" />
       <module name="config-server" options="-parameters" />
       <module name="greencity" options="-parameters" />
+      <module name="report-service" options="-parameters" />
       <module name="service-registry" options="-parameters" />
       <module name="user-service" options="-parameters" />
     </option>
