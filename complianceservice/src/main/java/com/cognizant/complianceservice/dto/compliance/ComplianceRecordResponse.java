@@ -13,6 +13,7 @@ public class ComplianceRecordResponse {
     private Integer complianceId;
     private Integer entityId;
     private String entityType;
+    private Integer officerId;
     private String result;
     private LocalDateTime date;
     private String notes;

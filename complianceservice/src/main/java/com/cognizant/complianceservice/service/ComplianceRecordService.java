@@ -45,6 +45,13 @@ public class ComplianceRecordService {
                 .map(this::toResponse)
                 .toList();
     }
+    public  List<ComplianceRecordResponse> listMine(){
+        Integer userId=resolveAuthenticatedUserId();
+        if(userId==null) throw new BadRequestException("unable to resolve user");
+        return complianceRecordRepository.findByOfficerId(userId).stream()
+                .map(this::toResponse)
+                .toList();
+    }
 
     public ComplianceRecordResponse get(Integer complianceId) {
         return toResponse(getEntity(complianceId));

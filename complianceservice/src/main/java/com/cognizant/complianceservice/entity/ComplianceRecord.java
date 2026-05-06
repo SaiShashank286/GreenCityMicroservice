@@ -23,7 +23,8 @@ public class ComplianceRecord {
 
     @Column(name = "entity_type", nullable = false)
     private String entityType; // "Project" or "Resource"
-
+    @Column(name = "officer_id")
+    private Integer officerId;
     @Column(name = "result")
     private String result; // e.g., "Passed", "Failed", "Warning"
 

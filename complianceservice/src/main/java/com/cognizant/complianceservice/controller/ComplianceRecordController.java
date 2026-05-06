@@ -28,7 +28,13 @@ public class ComplianceRecordController {
         log.info("Successfully fetched compliance records");
         return response;
     }
-
+    @GetMapping("/mine")
+    public List<ComplianceRecordResponse> listMine() {
+        log.info("Received request to list compliance records");
+        List<ComplianceRecordResponse> response = complianceRecordService.listMine();
+        log.info("Successfully fetched compliance records");
+        return response;
+    }
     @GetMapping("/{complianceId}")
     public ComplianceRecordResponse get(@PathVariable Integer complianceId) {
         log.info("Received request to get compliance record id: {}", complianceId);

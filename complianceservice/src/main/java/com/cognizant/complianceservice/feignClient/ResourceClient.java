@@ -4,7 +4,7 @@ import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 
-@FeignClient(name = "project-service", contextId = "resourceClient")
+@FeignClient(name = "project-service", contextId = "resourceClient",url = "http://localhost:8089")
 public interface ResourceClient {
     @GetMapping("/api/resources/{id}/exists")
     Boolean existsById(@PathVariable("id") Integer id);
